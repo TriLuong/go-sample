@@ -4,21 +4,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
+	"github.com/TriLuong/go-sample/models"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"golang.org/x/crypto/bcrypt"
 )
 
-type User struct {
-	Role      string `json:"role"`
-	Email     string `json:"email"`
-	Passoword string `json:"password"`
-	Phone     string `json:"phone"`
-	Token     string `json:"token"`
-}
+// type User struct {
+// 	Role      string `json:"role"`
+// 	Email     string `json:"email"`
+// 	Passoword string `json:"password"`
+// 	Phone     string `json:"phone"`
+// 	Token     string `json:"token"`
+// }
 
 type JwtClaims struct {
 	id string `json:"id"`
@@ -26,7 +29,7 @@ type JwtClaims struct {
 }
 
 func login(c echo.Context) error {
-	var user map[string]interface{}
+	var user models.User
 
 	defer c.Request().Body.Close()
 
@@ -42,13 +45,19 @@ func login(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error %s", error))
 	}
 
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Passoword), bcrypt.MinCost)
+	if err != nil {
+		log.Println(err)
+	}
+
+	user.Passoword = string(hash)
+
 	token, error := createJwt("admin@gmail.com")
+	user.Token = token
 	if error != nil {
 		return c.String(http.StatusInternalServerError, "Login ERROR!!!")
 	}
-	return c.JSON(http.StatusOK, map[string]string{
-		"token": token,
-	})
+	return c.JSON(http.StatusOK, user)
 }
 
 func createJwt(id string) (string, error) {
