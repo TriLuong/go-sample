@@ -41,7 +41,7 @@ func Login(c echo.Context) error {
 	if error != nil {
 		return c.String(http.StatusInternalServerError, "Login ERROR!!!")
 	}
-	return c.JSON(http.StatusOK, "fasddghfghfgh1234213")
+	return c.JSON(http.StatusOK, user)
 }
 
 func createJwt(id string) (string, error) {
