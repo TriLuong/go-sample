@@ -1,8 +1,8 @@
 FROM golang:latest
 
-WORKDIR /Users/tri/Desktop/project/golang/go-sample
+WORKDIR /Users/tri/Desktop/project/golang/go-sample/bin
 
-COPY ./ /Users/tri/Desktop/project/golang/go-sample
+COPY ./ /Users/tri/Desktop/project/golang/go-sample/bin
 
 RUN go mod download
 
