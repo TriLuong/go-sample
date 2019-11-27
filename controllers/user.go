@@ -71,7 +71,8 @@ func hashPassword(user models.User) (string, error) {
 
 func GetUsers(c echo.Context) error {
 	modelUser := database.Model{ModelName: "users"}
-	users, error := modelUser.GetUsers()
+	var users []models.User
+	error := modelUser.GetUsers(&users)
 	if error != nil {
 		return c.String(http.StatusInternalServerError, fmt.Sprintf("Cannot convert %s", error))
 	}

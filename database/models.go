@@ -21,7 +21,7 @@ func (m Model) AddNew(user interface{}) error {
 	return err
 }
 
-func (m Model) GetUsers() ([]models.User, error) {
+func (m Model) GetUsers(users *[]models.User) error {
 	client := GetMongoClient()
 	collection := client.Database("go-sample").Collection(m.ModelName)
 	cur, err := collection.Find(context.TODO(), bson.D{{}})
@@ -29,21 +29,19 @@ func (m Model) GetUsers() ([]models.User, error) {
 		fmt.Println("Error")
 	}
 
-	var users []models.User
-
 	for cur.Next(context.TODO()) {
 		var elem models.User
 		err := cur.Decode(&elem)
 		if err != nil {
 			log.Fatal(err)
-			return nil, err
+			return err
 		}
-		users = append(users, elem)
+		*users = append(*users, elem)
 	}
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)
-		return nil, err
+		return err
 	}
-	return users, nil
+	return nil
 
 }
