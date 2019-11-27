@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/TriLuong/go-sample/database"
 	"github.com/TriLuong/go-sample/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -69,9 +70,12 @@ func hashPassword(user models.User) (string, error) {
 }
 
 func GetUsers(c echo.Context) error {
-	role := c.QueryParam("role")
-
-	return c.String(http.StatusOK, fmt.Sprintf("Get Users with role %s\n", role))
+	modelUser := database.Model{ModelName: "users"}
+	users, error := modelUser.GetUsers()
+	if error != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Cannot convert %s", error))
+	}
+	return c.JSON(http.StatusOK, &users)
 }
 
 func GetUserById(c echo.Context) error {
@@ -94,8 +98,7 @@ func GetUserById(c echo.Context) error {
 }
 
 func AddUser(c echo.Context) error {
-	// user := User{}
-	var user map[string]interface{}
+	var user models.User
 
 	defer c.Request().Body.Close()
 
@@ -106,6 +109,13 @@ func AddUser(c echo.Context) error {
 	}
 
 	error = json.Unmarshal(b, &user)
+
+	if error != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Cannot convert %s", error))
+	}
+
+	modelUser := database.Model{ModelName: "users"}
+	error = modelUser.AddNew(user)
 
 	if error != nil {
 		return c.String(http.StatusInternalServerError, fmt.Sprintf("Cannot convert %s", error))

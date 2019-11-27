@@ -4,12 +4,14 @@ import (
 	"fmt"
 
 	"github.com/TriLuong/go-sample/controllers"
+	"github.com/TriLuong/go-sample/database"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
 
 func main() {
 	fmt.Println("Welcome Server!!!")
+	database.MongoConnect()
 	e := echo.New()
 
 	e.POST("/auth/login", controllers.Login)
